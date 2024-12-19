@@ -1,0 +1,18 @@
+/chage \
+    && chmod g-s /usr/bin/wall \
+    && chmod u-s /bin/umount \
+    && chmod u-s /bin/mount \
+    && chmod u-s /usr/bin/newgrp \
+    && chmod u-s /bin/su \
+    && chmod u-s /usr/bin/chsh
+
+# Switch to non-root user
+USER Bob
+
+# Add a health check to monitor the server
+HEALTHCHECK --interval=5m --timeout=3s \
+  CMD curl -f http://localhost:8080/ || exit 1
+
+# Set the entrypoint to compile and run the server
+ENTRYPOINT ["/bin/sh", "-c", "gcc server.c -lfcgi -o server && spawn-fcgi -p 8080 ./server && nginx -g 'daemon off;'"]
+
